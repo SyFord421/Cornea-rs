@@ -1,10 +1,15 @@
+pub mod worker;
+pub mod model;
+pub mod ui;
+use model::{SystemStatus, Cpu, Ram, Disk, Battery, BatteryStatus, Network};
 
-pub mod system_reader;
-pub mod data_structure;
-use data_structure::{SystemStatus, Cpu, Ram, Disk, Battery, BatteryStatus, Network};
 
-
-fn main() {
-    let status_sekarang = system_reader::read_system(); 
-    println!("{:#?}", status_sekarang);
+use crossterm:: {
+    event::{self, DisableMouseCapture, EnableMouseCapture, event, KeyCode},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},    
 }
+
+
+fn main() -> Result {
+    
