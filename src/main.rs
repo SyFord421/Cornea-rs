@@ -10,7 +10,16 @@ use crossterm::{
 use model::{Battery, BatteryStatus, Cpu, Disk, Network, Ram, SystemStatus};
 use ratatui::{Terminal, backend::CrosstermBackend};
 
+
 fn main() -> Result<(), io::Error> {
+    
+    // Vector untuk menyimpan riwayat 
+    //let mut cpu_history: Vec<u64> = Vec::new();
+    //let mut download_speed: Vec<u64> = Vec::new();
+    //let mut upload_speed: Vec<u64> = Vec::new();
+
+
+    
     let now_stat = SystemStatus::read_system();
     enable_raw_mode()?;
     let mut stdout = io::stdout();

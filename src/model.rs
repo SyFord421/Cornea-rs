@@ -19,8 +19,8 @@ pub struct Ram {
 
 #[derive(Debug)]
 pub struct Disk {
-    pub disk_capacity_gb: u32,
-    pub disk_used_gb: u32,
+    pub disk_capacity_gb: f32,
+    pub disk_used_gb: f32,
     pub disk_io_mbps: f32,
 }
 

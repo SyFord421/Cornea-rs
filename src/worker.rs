@@ -1,10 +1,33 @@
 use crate::model::SystemStatus;
 use crate::model::{Battery, BatteryStatus, Cpu, Disk, Network, Ram};
+use sysinfo::{
+    Components, Disks, Networks, System,
+};
 
-// Dummy untuk sementara sampai aku menemukan dia 🥀
+
+const TO_GB:f32 = 1024.0 * 1024.0 * 1024.0;
+// //Walaupun sudah bukan dummy tetap saja aku belum menemukan dia 😔
 
 impl SystemStatus {
     pub fn read_system() -> Self {
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        //CPU
+        let cpu_usage = sys.global_cpu_usage();// menghitung rata-rata dari semua core cpu
+        
+        //RAM
+        let ram_capacity = kb_to_gb(sys.total_memory());
+        let ram_used = kb_to_gb(sys.used_memory());
+
+        //DISK
+        let mut disk_capacity: f32 = 0.0;
+        let disks = Disks::new_with_refreshed_list();
+
+        for disk in &disks {
+            disk_capacity = kb_to_gb(disk.total_space());
+        }
+        
+        
         SystemStatus {
             timestamp: 1782043200,
             cpu_status: Cpu {
@@ -13,19 +36,19 @@ impl SystemStatus {
                     String::from("Termux"),
                     String::from("Rustc"),
                 ],
-                cpu_usage: 61.7,
+                cpu_usage: cpu_usage,
                 load_average: 1.2,
                 cpu_temp: 39.8,
             },
 
             ram_status: Ram {
-                ram_capacity_gb: 4.0,
-                ram_used_gb: 2.3,
+                ram_capacity_gb: ram_capacity,
+                ram_used_gb: ram_used,
             },
 
             disk_status: Disk {
-                disk_capacity_gb: 64,
-                disk_used_gb: 39,
+                disk_capacity_gb: disk_capacity,
+                disk_used_gb: 39.0,
                 disk_io_mbps: 150.4,
             },
 
@@ -41,4 +64,8 @@ impl SystemStatus {
             },
         }
     }
+}
+
+fn kb_to_gb(kb: u64) -> f32 {
+    (kb as f32)/ TO_GB
 }

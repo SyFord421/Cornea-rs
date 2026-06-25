@@ -26,7 +26,7 @@ pub fn draw_ui(f: &mut Frame, status: &SystemStatus) {
         .direction(Direction::Horizontal)
         .constraints([
             Constraint::Percentage(33),
-            Constraint::Percentage(33),
+            Constraint::Percentage(34),
             Constraint::Percentage(33),
         ])
         .split(main_layout[1]);
@@ -94,4 +94,11 @@ pub fn draw_ui(f: &mut Frame, status: &SystemStatus) {
     ))
     .block(Block::default().title(" BATTERY ").borders(Borders::ALL));
     f.render_widget(battery_box, status_layout[0]);
+
+    let time_box = Paragraph::new(format!(
+        "Time: {}",
+        status.timestamp
+        ))
+        .block(Block::default().title(" TIME ").borders(Borders::ALL));
+    f.render_widget(time_box, status_layout[1]);
 }
