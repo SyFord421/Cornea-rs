@@ -19,7 +19,9 @@ pub fn draw_ui(f: &mut Frame, status: &SystemStatus) {
 
     let body_layout = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .constraints([Constraint::Percentage(33),
+                      Constraint::Percentage(34),
+                      Constraint::Percentage(33)])
         .split(main_layout[0]);
 
     let footer_layout = Layout::default()
@@ -53,6 +55,7 @@ pub fn draw_ui(f: &mut Frame, status: &SystemStatus) {
     ))
     .block(Block::default().title(" DISK ").borders(Borders::ALL));
     f.render_widget(disk_box, body_layout[1]);
+
 
     // Untuk Footer bagian Network
     let net = &status.network_status;
