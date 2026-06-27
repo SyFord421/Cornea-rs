@@ -1,31 +1,31 @@
-use crate::model::SystemStatus;
-use crate::model::{Battery, BatteryStatus, Cpu, Disk, Network, Ram};
+use crate::model::{
+    Staticdata, Dynamicdata, BatteryStatus, 
+    Device, Battery, Cpu, Disk, Ram,
+    DynCpu, DynRam, DynDisk, DynBattery, DynNetwork
+};
+
 use sysinfo::{
     Components, Disks, Networks, System,
 };
 
+let mut sys = System::new_all();
+let net = Networks::new_with_refreshed_list();
+let disks = Disks::new_with_refreshed_list();
 
 const TO_GB:f32 = 1024.0 * 1024.0 * 1024.0;
-// //Walaupun sudah bukan dummy tetap saja aku belum menemukan dia 😔
+//Walaupun sudah bukan dummy tetap saja aku belum menemukan dia 😔
 
-impl SystemStatus {
-    pub fn read_system() -> Self {
-        let mut sys = System::new_all();
-        let net = Networks::new_with_refreshed_list();
-        let disks = Disks::new_with_refreshed_list();
-        
+impl Staticdata {
+    pub fn read_system() -> Self {      
         sys.refresh_all();
-        SystemStatus {
-            timestamp: 1782043200,
+        Staticdata {
+            device : fetch_device_data(&sys),
+            
             cpu_status: fetch_cpu_data(&sys),
             
             ram_status: fetch_ram_data(&sys),
 
             disk_status: fetch_disk_data(&disks),
-
-            battery_status: fetch_battery_data(&sys),
-            
-            network_status: fetch_network_data(&net)
         }
     }
 }
@@ -34,8 +34,59 @@ fn kb_to_gb(kb: u64) -> f32 {
     (kb as f32)/ TO_GB
 }
 
+fn fetch_device_data(sys: &System) -> Device {
+    Device {
+        name: "Redmi 9C",
+        timestamp: 1782043200,
+    }
+}
+
+//✓
 fn fetch_cpu_data(sys: &System) -> Cpu {
     Cpu {
+        name: String::from("Helio G35"),
+        core: 4,
+    }
+}
+
+
+fn fetch_ram_data(sys: &System) -> Ram {
+    Ram {
+        ram_capacity_gb: ram_capacity,
+    }
+}
+
+
+fn fetch_disk_data(disks: &Disks) -> Disk {
+    Disk {
+        disk_capacity_gb: disk_capacity,
+    }
+}
+
+
+// Tadinya buat batrai Tapi udah di pindahin ke lain hati
+
+// [||10%  ]=•
+
+
+// (⁠╥⁠﹏⁠╥⁠) Kuper(Kurang perhatian)
+
+impl Dynamicdata {
+    pub fn read_system() -> Self {
+        Dynamicdata {
+            cpu_status: fetch_dyncpu_data(),
+            ram_status: fetch_dynram_data(),
+            disk_status: fetch_dyndisk_data(),
+            battery_status: fetch_dynbattery_data(),
+            networks_status: fetch_dynnetwork_data(),
+        }
+    }
+}
+
+
+
+fn fetch_dyncpu_data() -> DynCpu {
+    DynCpu {
         top_processes: vec![
             String::from("Acode"),
             String::from("Termux"),
@@ -47,36 +98,20 @@ fn fetch_cpu_data(sys: &System) -> Cpu {
     }
 }
 
-
-fn fetch_ram_data(sys: &System) -> Ram {
-    
-    let ram_capacity = kb_to_gb(sys.total_memory());
-    let ram_used = kb_to_gb(sys.used_memory());
-    Ram {
-        ram_capacity_gb: ram_capacity,
+fn fetch_dynram_data() -> DynRam {
+    DynRam {
         ram_used_gb: ram_used,
     }
 }
 
-
-fn fetch_disk_data(disks: &Disks) -> Disk {
-    let mut disk_capacity = 0;
-    let mut disk_used = 0;
-    for disk in disks.list() {
-        disk_capacity = disk.total_space();
-        disk_used = disk.available_space();
-    }
-    let disk_capacity = kb_to_gb(disk_capacity);
-    let disk_used = kb_to_gb(disk_used);
-    Disk {
-        disk_capacity_gb: disk_capacity,
-        disk_used_gb: disk_used,
+fn fetch_dyndisk_data() -> DynDisk {
+    DynDisk {
+        disk_used_gb: 10.0,
         disk_io_mbps: 150.4,
     }
 }
 
-
-fn fetch_battery_data(sys: &System) -> Battery {
+fn fetch_dynbattery_data() -> DynBattery {
     Battery {
         status: BatteryStatus::Discharging,
         health_percentage: 92,
@@ -84,10 +119,13 @@ fn fetch_battery_data(sys: &System) -> Battery {
     } 
 } 
 
-fn fetch_network_data(net: &Networks) -> Network {
-    Network {
+fn fetch_dynnetwork_data() -> DynNetwork {
+    DynNetwork {
             download_speed_kbps: 310.0,
             upload_speed_kbps: 350.2,
             ping_ms: 25,
     } 
-} 
+}
+
+
+//My name SyFord 17y old thn 2026

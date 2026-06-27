@@ -1,3 +1,52 @@
+
+// Made With ♥️ By SyFord 
+
+// Static Data khusus data yang akan di panggil sekali di awal
+#[derive(Debug)]
+pub struct Device {
+    pub name: String,
+    pub timestamp: u32,
+    
+}
+
+#[derive(Debug)]
+pub struct Cpu {
+    name: String,
+    core: u8,
+    
+}
+
+#[derive(Debug)]
+pub struct Ram {
+    pub ram_capacity_gb: f32,
+}
+
+#[derive(Debug)]
+pub struct Disk {
+    pub disk_capacity_gb: f32,
+}
+
+#[derive(Debug)]
+pub struct Battery {
+    pub health_percentage: u8,
+}
+// untuk bagian network tapi karena network butuh pemantauan terus menerus saya pindahan ke dynamic 
+
+// Untuk Static Data utama...
+#[derive(Debug)]
+pub struct Staticdata {
+    pub device: Device,
+    pub cpu_status: Cpu,
+    pub disk_status: Disk,
+    pub ram_status: Ram,
+    pub battery_status: Battery,
+}
+
+
+
+
+// Dynamic data Khusus untuk data yang di panggil terus menerus 
+
 #[derive(Debug)]
 pub enum BatteryStatus {
     Charging,
@@ -5,45 +54,43 @@ pub enum BatteryStatus {
 }
 
 #[derive(Debug)]
-pub struct Cpu {
-    pub top_processes: Vec<String>, // untuk daftar proses yang berjalan
+pub struct DynCpu {
+    pub top_processes: Vec<String>,
     pub cpu_usage: f32,
     pub load_average: f32,
     pub cpu_temp: f32,
-}
-#[derive(Debug)]
-pub struct Ram {
-    pub ram_capacity_gb: f32,
-    pub ram_used_gb: f32,
+    
 }
 
 #[derive(Debug)]
-pub struct Disk {
-    pub disk_capacity_gb: f32,
+pub struct DynRam {
+    pub ram_used_gb: f32, 
+}
+
+pub struct DynDisk {
     pub disk_used_gb: f32,
     pub disk_io_mbps: f32,
 }
 
 #[derive(Debug)]
-pub struct Battery {
+pub struct DynBattery {
     pub status: BatteryStatus, // Misal: "Charging", "Discharging"
-    pub health_percentage: u8,
-    pub battery_temp: f32,
+    pub battery_temp: f32, 
 }
 
 #[derive(Debug)]
-pub struct Network {
+pub struct DynNetwork {
     pub download_speed_kbps: f32,
     pub upload_speed_kbps: f32,
     pub ping_ms: u32,
 }
 
-#[derive(Debug)]
-pub struct SystemStatus {
-    pub timestamp: u64,
-    pub cpu_status: Cpu,
-    pub disk_status: Disk,
-    pub ram_status: Ram,
-    pub battery_status: Battery,
-    pub network_status: Network,
+// untuk data dynamic utama..
+#[derive(Debug)]    
+pub struct Dynamicdata {
+    pub cpu_status: DynCpu,
+    pub disk_status: DynDisk,
+    pub ram_status: DynRam,
+    pub battery_status: DynBattery,
+    pub network_status: DynNetwork,
 }
