@@ -67,6 +67,8 @@ pub struct DynRam {
     pub ram_used_gb: f32, 
 }
 
+
+#[derive(Debug)]
 pub struct DynDisk {
     pub disk_used_gb: f32,
     pub disk_io_mbps: f32,
@@ -89,8 +91,8 @@ pub struct DynNetwork {
 #[derive(Debug)]    
 pub struct Dynamicdata {
     pub cpu_status: DynCpu,
-    pub disk_status: DynDisk,
     pub ram_status: DynRam,
+    pub disk_status: DynDisk,   
     pub battery_status: DynBattery,
     pub network_status: DynNetwork,
 }

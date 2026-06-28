@@ -8,15 +8,13 @@ use sysinfo::{
     Components, Disks, Networks, System,
 };
 
-let mut sys = System::new_all();
-let net = Networks::new_with_refreshed_list();
-let disks = Disks::new_with_refreshed_list();
-
+// Rumus konversi KB ke GB yang bener (karena sysinfo balikinnya Bytes/KB tergantung fungsionalitasnya)
+// Di sini kita asumsikan inputnya Bytes, jadi dibagi 1024^3
 const TO_GB:f32 = 1024.0 * 1024.0 * 1024.0;
 //Walaupun sudah bukan dummy tetap saja aku belum menemukan dia 😔
 
 impl Staticdata {
-    pub fn read_system() -> Self {      
+    pub fn read_system(sys: &mut System, disk: &Disks) -> Self {      
         sys.refresh_all();
         Staticdata {
             device : fetch_device_data(&sys),
@@ -25,7 +23,9 @@ impl Staticdata {
             
             ram_status: fetch_ram_data(&sys),
 
-            disk_status: fetch_disk_data(&disks),
+            disk_status: fetch_disk_data(&disk),
+            
+            battery_status: fetch_battery_data(),
         }
     }
 }
@@ -36,7 +36,7 @@ fn kb_to_gb(kb: u64) -> f32 {
 
 fn fetch_device_data(sys: &System) -> Device {
     Device {
-        name: "Redmi 9C",
+        name: String::from("Redmi 9C"),
         timestamp: 1782043200,
     }
 }
@@ -52,14 +52,20 @@ fn fetch_cpu_data(sys: &System) -> Cpu {
 
 fn fetch_ram_data(sys: &System) -> Ram {
     Ram {
-        ram_capacity_gb: ram_capacity,
+        ram_capacity_gb: 8.0,
     }
 }
 
 
-fn fetch_disk_data(disks: &Disks) -> Disk {
+fn fetch_disk_data(disk: &Disks) -> Disk {
     Disk {
-        disk_capacity_gb: disk_capacity,
+        disk_capacity_gb: 64.0,
+    }
+}
+
+fn fetch_battery_data() -> Battery {
+    Battery {
+    health_percentage: 90,
     }
 }
 
@@ -72,13 +78,14 @@ fn fetch_disk_data(disks: &Disks) -> Disk {
 // (⁠╥⁠﹏⁠╥⁠) Kuper(Kurang perhatian)
 
 impl Dynamicdata {
-    pub fn read_system() -> Self {
+    pub fn read_system(sys: &System, net: &Networks, disk: &Disks) -> Self {
+        
         Dynamicdata {
             cpu_status: fetch_dyncpu_data(),
             ram_status: fetch_dynram_data(),
             disk_status: fetch_dyndisk_data(),
             battery_status: fetch_dynbattery_data(),
-            networks_status: fetch_dynnetwork_data(),
+            network_status: fetch_dynnetwork_data(),
         }
     }
 }
@@ -100,7 +107,7 @@ fn fetch_dyncpu_data() -> DynCpu {
 
 fn fetch_dynram_data() -> DynRam {
     DynRam {
-        ram_used_gb: ram_used,
+        ram_used_gb: 2.6,
     }
 }
 
@@ -112,9 +119,8 @@ fn fetch_dyndisk_data() -> DynDisk {
 }
 
 fn fetch_dynbattery_data() -> DynBattery {
-    Battery {
+    DynBattery {
         status: BatteryStatus::Discharging,
-        health_percentage: 92,
         battery_temp: 35.2,
     } 
 } 

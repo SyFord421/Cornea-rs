@@ -1,11 +1,16 @@
-use crate::model::SystemStatus;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout},
     widgets::{Block, Borders, List, ListItem, Paragraph},
 };
+use crate::model::{
+    Staticdata, Dynamicdata, BatteryStatus, 
+    Device, Battery, Cpu, Disk, Ram,
+    DynCpu, DynRam, DynDisk, DynBattery, DynNetwork
+};
 
-pub fn draw_ui(f: &mut Frame, status: &SystemStatus) {
+
+pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     // Persentase disesuaikan supaya pas dan proporsional di layar HP
     let main_layout = Layout::default()
         .direction(Direction::Vertical)
