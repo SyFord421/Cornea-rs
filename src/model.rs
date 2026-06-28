@@ -11,8 +11,8 @@ pub struct Device {
 
 #[derive(Debug)]
 pub struct Cpu {
-    name: String,
-    core: u8,
+    pub name: String,
+    pub core: u8,
     
 }
 

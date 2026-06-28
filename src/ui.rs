@@ -41,15 +41,16 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     // --- RENDER WIDGETS ---
 
     // 0. Header Widget
+ 
     let header_box = Paragraph::new(format!(
         "SYSTEM: {}\nTIMESTAMP: {}",
-        status.device.name, status.device.timestamp
+        stat.device.name, stat.device.timestamp
     ))
     .block(Block::default().title(" M-MONITOR v1.0 ").borders(Borders::ALL));
     f.render_widget(header_box, main_layout[0]);
 
-    // 1. CPU Widget (Sekarang satu baris penuh biar lega)
-    let cpu = &status.cpu_status;
+    // 1. CPU Widget
+    let cpu = &now_stat.cpu_status;
     let cpu_box = Paragraph::new(format!(
         "Usage: {}%\nLoad Average: {}\nTemp: {}°C",
         cpu.cpu_usage, cpu.load_average, cpu.cpu_temp
@@ -58,25 +59,24 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     f.render_widget(cpu_box, main_layout[1]);
 
     // 2. DISK Widget
-    let disk = &status.disk_status;
+    let now_disk = &now_stat.disk_status;
     let disk_box = Paragraph::new(format!(
-        "Total Capacity: {:.2} GB\nUsed: {:.2} GB\nI/O Speed: {} MB/s",
-        disk.disk_capacity_gb, disk.disk_used_gb, disk.disk_io_mbps,
+        "Total Capacity: {:.2} GB\nUsed: {:.2} GB\nI/O Speed: {} MB/s", stat.disk_status.disk_capacity_gb, now_disk.disk_used_gb, now_disk.disk_io_mbps,
     ))
     .block(Block::default().title(" STORAGE ").borders(Borders::ALL));
     f.render_widget(disk_box, main_layout[2]);
 
     // 3. NETWORK Widget
-    let net = &status.network_status;
+    let now_net = &now_stat.network_status;
     let network_box = Paragraph::new(format!(
         "Down: {} KB/s\nUp:   {} MB/s\nPing: {} ms",
-        net.download_speed_kbps, net.upload_speed_kbps, net.ping_ms,
+        now_net.download_speed_kbps, now_net.upload_speed_kbps, now_net.ping_ms,
     ))
     .block(Block::default().title(" NETWORK ").borders(Borders::ALL));
     f.render_widget(network_box, footer_layout[0]);
 
-    // 4. TASK Widget (Di space 25%)
-    let list_items: Vec<ListItem> = status
+    // 4. TASK Widget
+    let list_items: Vec<ListItem> = now_stat
         .cpu_status
         .top_processes
         .iter()
@@ -92,10 +92,11 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     f.render_widget(task_box, footer_layout[1]);
 
     // 5. BATTERY Widget
-    let batt = &status.battery_status;
+    let batt = &stat.battery_status;
+    let now_batt = &now_stat.battery_status;
     let battery_box = Paragraph::new(format!(
         "Status: {:?} | Health: {}% | Temp: {}°C",
-        batt.status, batt.health_percentage, batt.battery_temp
+        now_batt.status, batt.health_percentage, now_batt.battery_temp
     ))
     .block(Block::default().title(" BATTERY ").borders(Borders::ALL));
     f.render_widget(battery_box, status_layout[0]);
