@@ -18,10 +18,18 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
             Constraint::Percentage(15), // Header & Device info
             Constraint::Percentage(25), // CPU
             Constraint::Percentage(25), // DISK
-            Constraint::Percentage(25), // Footer (Network & Task 75:25)
-            Constraint::Percentage(10), // Status Layout (Battery & Time)
+            Constraint::Percentage(25), // Footer
+            Constraint::Percentage(10), // Status Layout
         ])
         .split(f.size());
+    // Cpu & Ram 
+    let storage_layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(50),
+            Constraint::Percentage(50),     
+        ])
+        .split(main_layout[2]);
 
     // Layout untuk Footer: Membagi Network (75%) dan Task (25%) secara Horizontal
     let footer_layout = Layout::default()
@@ -38,9 +46,11 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(main_layout[4]);
 
+    
+
     // --- RENDER WIDGETS ---
 
-    // 0. Header Widget
+    // Header Widget
  
     let header_box = Paragraph::new(format!(
         "SYSTEM: {}\nTIMESTAMP: {}",
@@ -49,7 +59,11 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     .block(Block::default().title(" M-MONITOR v1.0 ").borders(Borders::ALL));
     f.render_widget(header_box, main_layout[0]);
 
-    // 1. CPU Widget
+
+
+
+    
+    // CPU Widget
     let cpu = &now_stat.cpu_status;
     let cpu_box = Paragraph::new(format!(
         "Usage: {}%\nLoad Average: {}\nTemp: {}°C",
@@ -58,15 +72,26 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     .block(Block::default().title(" CPU ").borders(Borders::ALL));
     f.render_widget(cpu_box, main_layout[1]);
 
-    // 2. DISK Widget
+
+    
+    // STORAGE Widget
     let now_disk = &now_stat.disk_status;
     let disk_box = Paragraph::new(format!(
         "Total Capacity: {:.2} GB\nUsed: {:.2} GB\nI/O Speed: {} MB/s", stat.disk_status.disk_capacity_gb, now_disk.disk_used_gb, now_disk.disk_io_mbps,
     ))
     .block(Block::default().title(" STORAGE ").borders(Borders::ALL));
-    f.render_widget(disk_box, main_layout[2]);
+    f.render_widget(disk_box, storage_layout[0]);
 
-    // 3. NETWORK Widget
+    let ram_box = Paragraph::new(format!("Capacity: {}\nUsed: {}",
+                    stat.ram_status.ram_capacity_gb, now_stat.ram_status.ram_used_gb
+    ))
+        .block(Block::default().title(" RAM ").borders(Borders::ALL));
+    f.render_widget(ram_box, storage_layout[1]);
+
+
+
+    
+    // NETWORK Widget
     let now_net = &now_stat.network_status;
     let network_box = Paragraph::new(format!(
         "Down: {} KB/s\nUp:   {} MB/s\nPing: {} ms",
@@ -75,7 +100,7 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     .block(Block::default().title(" NETWORK ").borders(Borders::ALL));
     f.render_widget(network_box, footer_layout[0]);
 
-    // 4. TASK Widget
+    // TASK Widget
     let list_items: Vec<ListItem> = now_stat
         .cpu_status
         .top_processes
@@ -91,7 +116,7 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     );
     f.render_widget(task_box, footer_layout[1]);
 
-    // 5. BATTERY Widget
+    // BATTERY Widget
     let batt = &stat.battery_status;
     let now_batt = &now_stat.battery_status;
     let battery_box = Paragraph::new(format!(
@@ -101,7 +126,7 @@ pub fn draw_ui(f: &mut Frame, stat: &Staticdata, now_stat: &Dynamicdata) {
     .block(Block::default().title(" BATTERY ").borders(Borders::ALL));
     f.render_widget(battery_box, status_layout[0]);
 
-    // 6. TIME/FOOTER tambahan info
+    // TIME/FOOTER tambahan info
     let time_box = Paragraph::new(format!(" System Status: OK"))
         .block(Block::default().title(" STATUS ").borders(Borders::ALL));
     f.render_widget(time_box, status_layout[1]);

@@ -10,7 +10,9 @@ use sysinfo::{
 
 // Rumus konversi KB ke GB yang bener (karena sysinfo balikinnya Bytes/KB tergantung fungsionalitasnya)
 // Di sini kita asumsikan inputnya Bytes, jadi dibagi 1024^3
+
 const TO_GB:f32 = 1024.0 * 1024.0 * 1024.0;
+
 //Walaupun sudah bukan dummy tetap saja aku belum menemukan dia 😔
 
 impl Staticdata {
@@ -30,13 +32,10 @@ impl Staticdata {
     }
 }
 
-fn kb_to_gb(kb: u64) -> f32 {
-    (kb as f32)/ TO_GB
-}
 
 fn fetch_device_data(sys: &System) -> Device {
     Device {
-        name: String::from("Redmi 9C"),
+        name: System::name().expect("UNKNOWN"),
         timestamp: 1782043200,
     }
 }
@@ -45,14 +44,14 @@ fn fetch_device_data(sys: &System) -> Device {
 fn fetch_cpu_data(sys: &System) -> Cpu {
     Cpu {
         name: String::from("Helio G35"),
-        core: 4,
+        core: 0,
     }
 }
 
 
 fn fetch_ram_data(sys: &System) -> Ram {
     Ram {
-        ram_capacity_gb: 8.0,
+        ram_capacity_gb: bytes_to_gb(sys.total_memory()),
     }
 }
 
@@ -81,8 +80,8 @@ impl Dynamicdata {
     pub fn read_system(sys: &System, net: &Networks, disk: &Disks) -> Self {
         
         Dynamicdata {
-            cpu_status: fetch_dyncpu_data(),
-            ram_status: fetch_dynram_data(),
+            cpu_status: fetch_dyncpu_data(&sys),
+            ram_status: fetch_dynram_data(&sys),
             disk_status: fetch_dyndisk_data(),
             battery_status: fetch_dynbattery_data(),
             network_status: fetch_dynnetwork_data(),
@@ -92,22 +91,18 @@ impl Dynamicdata {
 
 
 
-fn fetch_dyncpu_data() -> DynCpu {
+fn fetch_dyncpu_data(sys: &System) -> DynCpu {  
     DynCpu {
-        top_processes: vec![
-            String::from("Acode"),
-            String::from("Termux"),
-            String::from("Rustc"),
-                ],
+        top_processes: fect_top_process(&sys),
         cpu_usage: 60.0,
         load_average: 1.2,
         cpu_temp: 39.8,
     }
 }
 
-fn fetch_dynram_data() -> DynRam {
+fn fetch_dynram_data(sys: &System) -> DynRam {
     DynRam {
-        ram_used_gb: 2.6,
+        ram_used_gb: bytes_to_gb(sys.used_memory()),
     }
 }
 
@@ -131,6 +126,23 @@ fn fetch_dynnetwork_data() -> DynNetwork {
             upload_speed_kbps: 350.2,
             ping_ms: 25,
     } 
+}
+
+
+// Helper Fungsi pembantu..
+
+fn bytes_to_gb(bytes: u64) -> f32 {
+    (bytes as f32)/ TO_GB
+}
+
+
+fn fect_top_process(sys: &System) -> Vec<String> {
+    let mut procs: Vec<_> = sys.processes()
+        .values().collect();
+    // urutkaan dari yang terbesar
+    procs.sort_by(|a, b| b.cpu_usage().partial_cmp(&a.cpu_usage()).expect("Gagal"));                                                   
+    procs.into_iter().take(5).map(|procs| procs.name().to_string_lossy().into_owned())
+    .collect()
 }
 
 
